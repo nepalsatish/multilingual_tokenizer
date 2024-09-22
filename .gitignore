@@ -1,0 +1,9 @@
+# Ignore all JSON files
+*.json
+
+# But do not ignore JSON files inside the tokenizer folder
+!tokenizer/
+!tokenizer/*.json
+
+__pycache__
+
