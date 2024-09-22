@@ -11,31 +11,31 @@ class BPE:
         self.unknownToken = "[UNK]"
         self.spaceToken = "[SPACE]"
         if vocab_file:
-            self.load_vocab(vocab_file)
+            self.loadVocab(vocab_file)
         else:
-            self.initialize_base_vocab()
+            self.initializeBaseVocab()
 
-    def initialize_base_vocab(self):
+    def initializeBaseVocab(self):
         # Initialize with all ASCII letters, digits, space, and common punctuation
         self.vocab = [chr(i) for i in range(32, 127)] + [
             self.unknownToken,
             self.spaceToken,
         ]
-        self.vocabDict = self.build_vocabDict(self.vocab)
+        self.vocabDict = self.buildVocabDict(self.vocab)
         self.reverseVocabDict = {v: k for k, v in self.vocabDict.items()}
 
-    def load_vocab(self, vocab_file):
+    def loadVocab(self, vocab_file):
         with open(vocab_file, "r") as f:
             self.vocab = json.load(f)
         if self.unknownToken not in self.vocab:
             self.vocab.append(self.unknownToken)
         if self.spaceToken not in self.vocab:
             self.vocab.append(self.spaceToken)
-        self.vocabDict = self.build_vocabDict(self.vocab)
+        self.vocabDict = self.buildVocabDict(self.vocab)
         self.reverseVocabDict = {v: k for k, v in self.vocabDict.items()}
         print(f"Loaded vocabulary with {len(self.vocab)} tokens.")
 
-    def build_vocabDict(self, vocab):
+    def buildVocabDict(self, vocab):
         return {token: idx for idx, token in enumerate(vocab)}
 
     def encode(self, text):
@@ -44,7 +44,7 @@ class BPE:
             self.vocabDict.get(token, self.vocabDict[self.unknownToken])
             for token in tokens
         ]
-        print(f"Encoded '{text}' to: {encoded}")
+        # print(f"Encoded '{text}' to: {encoded}")
         return encoded
 
     def decode(self, token_ids):
@@ -72,15 +72,12 @@ class BPE:
         return tokens
 
     def train(self, data, vocab_size):
-        # For this version, we're not actually training, just ensuring our base vocabulary
-        # includes all necessary characters
         char_freq = defaultdict(int)
         for item in data:
             for text in [item["input"], item["output"]]:
                 for char in text:
                     char_freq[char] += 1
 
-        # Add all characters seen in the data to the vocabulary
         for char in char_freq:
             if char not in self.vocabDict and char != " ":
                 self.vocab.append(char)
@@ -92,21 +89,21 @@ class BPE:
                 self.spaceToken,
             ]
 
-        self.vocabDict = self.build_vocabDict(self.vocab)
+        self.vocabDict = self.buildVocabDict(self.vocab)
         self.reverseVocabDict = {v: k for k, v in self.vocabDict.items()}
         print(f"Updated vocabulary with {len(self.vocab)} tokens.")
 
-    def save_vocab(self, vocab_file):
+    def saveVocab(self, vocab_file):
         with open(vocab_file, "w") as f:
             json.dump(self.vocab, f)
         print(f"Saved vocabulary to {vocab_file}")
 
-    def print_vocab_sample(self, n=10):
-        print(f"Sample of first {n} vocabulary items:")
-        for i, token in enumerate(self.vocab[:n]):
-            print(f"{i}: {token}")
+    # def printVocabSample(self, n=10):
+    #     print(f"Sample of first {n} vocabulary items:")
+    #     for i, token in enumerate(self.vocab[:n]):
+    #         print(f"{i}: {token}")
 
-    def print_full_vocab(self):
-        print("Full vocabulary:")
-        for i, token in enumerate(self.vocab):
-            print(f"{i}: {token}")
+    # def printFullVocab(self):
+    #     print("Full vocabulary:")
+    #     for i, token in enumerate(self.vocab):
+    #         print(f"{i}: {token}")

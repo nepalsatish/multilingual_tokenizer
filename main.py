@@ -4,7 +4,7 @@ import re
 from bpe import BPE
 
 
-def load_multilingual_data(data_files):
+def loadMultilingualData(data_files):
     all_data = []
     for file in data_files:
         with open(file, "r", encoding="utf-8") as f:
@@ -13,8 +13,8 @@ def load_multilingual_data(data_files):
     return all_data
 
 
-def train_tokenizer(data_files, output_file, vocab_size):
-    data = load_multilingual_data(data_files)
+def trainTokenizer(data_files, output_file, vocab_size):
+    data = loadMultilingualData(data_files)
 
     tokenizer = BPE()
     tokenizer.train(data, vocab_size=vocab_size)
@@ -23,8 +23,7 @@ def train_tokenizer(data_files, output_file, vocab_size):
     return tokenizer
 
 
-def parse_token_ids(token_ids_str):
-    # Remove brackets, split by comma or space, and convert to integers
+def parseTokenIds(token_ids_str):
     cleaned = re.sub(r"[\[\]]", "", token_ids_str)
     return [int(id.strip()) for id in re.split(r"[,\s]+", cleaned) if id.strip()]
 
@@ -35,7 +34,7 @@ def main():
     parser.add_argument(
         "--decode",
         type=str,
-        help="Token IDs to decode in the format '[id1, id2, ...]'",
+        help="tokens to decode in the format '[token1, token2, ...]'",
     )
     parser.add_argument("--tokenize", type=str)
     parser.add_argument(
@@ -47,7 +46,6 @@ def main():
         "--output",
         type=str,
         default="tokenizer/tokenizer.json",
-        help="Output vocabulary file",
     )
     parser.add_argument(
         "--vocab-size", type=int, default=40000
@@ -63,13 +61,13 @@ def main():
                 "Please provide exactly 5 training data files, one for each language."
             )
             return
-        tokenizer = train_tokenizer(args.train, args.output, args.vocab_size)
+        tokenizer = trainTokenizer(args.train, args.output, args.vocab_size)
     else:
         tokenizer = BPE(args.output)
-        tokenizer.print_vocab_sample()
+        # tokenizer.printVocabSample()
 
-    if args.print_full_vocab:
-        tokenizer.print_full_vocab()
+    # if args.printFullVocab:
+    #     tokenizer.printFullVocab()
 
     if args.encode:
         token_ids = tokenizer.encode(args.encode)
@@ -77,19 +75,17 @@ def main():
 
     if args.decode:
         try:
-            token_ids = parse_token_ids(args.decode)
-            print(f"Attempting to decode token IDs: {token_ids}")
+            token_ids = parseTokenIds(args.decode)
             decoded_string = tokenizer.decode(token_ids)
-            print(f"Decoded {token_ids} to: '{decoded_string}'")
+            print(f"Decoded to: '{decoded_string}'")
         except ValueError as e:
-            print(f"Error parsing token IDs: {e}")
             print(
-                "Please provide token IDs in the format: --decode '[id1, id2, ...]'"
+                "Please provide tokens in the format: --decode '[token1, token2, ...]'"
             )
 
     if args.tokenize:
         tokens = tokenizer.tokenize(args.tokenize)
-        print(f"Tokenized '{args.tokenize}' to: {tokens}")
+        print(f"Tokenized to: {tokens}")
 
 
 if __name__ == "__main__":
